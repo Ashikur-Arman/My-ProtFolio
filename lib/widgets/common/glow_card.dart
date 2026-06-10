@@ -3,14 +3,16 @@ import '../../core/constants/app_colors.dart';
 
 class GlowCard extends StatefulWidget {
   final Widget child;
-  final EdgeInsetsGeometry? padding;
-  final Color? glowColor;
+  final EdgeInsetsGeometry padding;
+  final Color glowColor;
+  final BorderRadius? borderRadius;
 
   const GlowCard({
     super.key,
     required this.child,
-    this.padding,
-    this.glowColor,
+    this.padding = const EdgeInsets.all(28),
+    this.glowColor = AppColors.neonCyan,
+    this.borderRadius,
   });
 
   @override
@@ -22,28 +24,24 @@ class _GlowCardState extends State<GlowCard> {
 
   @override
   Widget build(BuildContext context) {
-    final glow = widget.glowColor ?? AppColors.neonCyan;
+    final br = widget.borderRadius ?? BorderRadius.circular(16);
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
+      onExit:  (_) => setState(() => _hovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
+        duration: const Duration(milliseconds: 220),
         curve: Curves.easeOut,
-        padding: widget.padding ?? const EdgeInsets.all(24),
+        padding: widget.padding,
         decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
+          color: AppColors.surfaceCard,
+          borderRadius: br,
           border: Border.all(
-            color: _hovered ? glow.withOpacity(0.5) : AppColors.border,
+            color: _hovered
+                ? widget.glowColor.withOpacity(0.45)
+                : AppColors.border,
           ),
           boxShadow: _hovered
-              ? [
-                  BoxShadow(
-                    color: glow.withOpacity(0.15),
-                    blurRadius: 24,
-                    spreadRadius: 2,
-                  ),
-                ]
+              ? [BoxShadow(color: widget.glowColor.withOpacity(0.12), blurRadius: 28, spreadRadius: 2)]
               : [],
         ),
         child: widget.child,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_text_styles.dart';
 
 class NeonButton extends StatefulWidget {
   final String label;
@@ -28,64 +27,49 @@ class _NeonButtonState extends State<NeonButton> {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
+      onExit:  (_) => setState(() => _hovered = false),
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          duration: const Duration(milliseconds: 180),
+          transform: Matrix4.translationValues(0, _hovered ? -2 : 0, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 13),
           decoration: widget.outlined
               ? BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(100),
                   border: Border.all(
                     color: _hovered
                         ? AppColors.neonCyan
-                        : AppColors.neonCyan.withOpacity(0.5),
+                        : AppColors.neonCyan.withOpacity(0.35),
                   ),
-                  color: _hovered
-                      ? AppColors.neonCyan.withOpacity(0.08)
-                      : Colors.transparent,
+                  color: _hovered ? AppColors.neonCyan.withOpacity(0.07) : Colors.transparent,
                 )
               : BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(100),
                   gradient: LinearGradient(
-                    colors: _hovered
-                        ? [AppColors.neonCyan, AppColors.neonPurple]
-                        : [
-                            AppColors.neonCyan.withOpacity(0.8),
-                            AppColors.neonPurple.withOpacity(0.8),
-                          ],
+                    colors: [
+                      AppColors.neonCyan.withOpacity(_hovered ? 1 : 0.9),
+                      AppColors.neonPurple.withOpacity(_hovered ? 1 : 0.9),
+                    ],
                   ),
                   boxShadow: _hovered
-                      ? [
-                          BoxShadow(
-                            color: AppColors.neonCyan.withOpacity(0.3),
-                            blurRadius: 16,
-                          )
-                        ]
+                      ? [BoxShadow(color: AppColors.neonCyan.withOpacity(0.28), blurRadius: 18)]
                       : [],
                 ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (widget.icon != null) ...[
-                Icon(
-                  widget.icon,
-                  size: 16,
-                  color: widget.outlined
-                      ? AppColors.neonCyan
-                      : AppColors.background,
-                ),
+                Icon(widget.icon, size: 16,
+                    color: widget.outlined ? AppColors.neonCyan : AppColors.background),
                 const SizedBox(width: 8),
               ],
               Text(
                 widget.label,
-                style: AppTextStyles.chipText.copyWith(
-                  color: widget.outlined
-                      ? AppColors.neonCyan
-                      : AppColors.background,
-                  fontWeight: FontWeight.w600,
+                style: TextStyle(
                   fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: widget.outlined ? AppColors.neonCyan : AppColors.background,
                 ),
               ),
             ],

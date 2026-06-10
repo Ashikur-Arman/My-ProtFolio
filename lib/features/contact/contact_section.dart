@@ -12,17 +12,18 @@ class ContactSection extends StatelessWidget {
 
   Future<void> _launch(String url) async {
     final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
+    if (await canLaunchUrl(uri)) launchUrl(uri);
   }
 
-  void _copyEmail(BuildContext context) {
-    Clipboard.setData(const ClipboardData(text: PortfolioData.email));
-    ScaffoldMessenger.of(context).showSnackBar(
+  void _copyEmail(BuildContext ctx) {
+    Clipboard.setData(const ClipboardData(text: PersonalInfo.email));
+    ScaffoldMessenger.of(ctx).showSnackBar(
       SnackBar(
-        content: const Text('Email copied!'),
+        content: const Text('Email copied to clipboard!'),
         backgroundColor: AppColors.neonCyan.withOpacity(0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -38,12 +39,23 @@ class ContactSection extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                "Open to new opportunities, collaborations, and interesting projects. Feel free to reach out!",
+                'Open to new opportunities, collaborations, and interesting '
+                'projects. Feel free to reach out!',
                 style: AppTextStyles.body,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
-              // Contact links
+              // Email display
+              Text(
+                PersonalInfo.email,
+                style: AppTextStyles.cardTitle.copyWith(
+                  fontSize: 20,
+                  letterSpacing: -0.3,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              // Buttons
               Wrap(
                 spacing: 16,
                 runSpacing: 12,
@@ -56,28 +68,27 @@ class ContactSection extends StatelessWidget {
                   ),
                   NeonButton(
                     label: 'GitHub',
-                    onTap: () => _launch(PortfolioData.github),
+                    onTap: () => _launch(PersonalInfo.github),
                     outlined: true,
                     icon: Icons.code_rounded,
                   ),
                   NeonButton(
                     label: 'LinkedIn',
-                    onTap: () => _launch(PortfolioData.linkedin),
+                    onTap: () => _launch(PersonalInfo.linkedin),
                     outlined: true,
                     icon: Icons.person_outline_rounded,
                   ),
                 ],
               ),
               const SizedBox(height: 24),
-              // Phone
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.phone_outlined,
-                      size: 16, color: AppColors.textMuted),
+                      size: 15, color: AppColors.textMuted),
                   const SizedBox(width: 8),
-                  Text(PortfolioData.phone,
-                      style: AppTextStyles.cardSubtitle),
+                  Text(PersonalInfo.phone,
+                      style: AppTextStyles.bodySm),
                 ],
               ),
             ],

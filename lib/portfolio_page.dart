@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../core/constants/app_colors.dart';
-import '../core/constants/app_text_styles.dart';
-import '../features/home/hero_section.dart';
-import '../features/experience/experience_section.dart';
-import '../features/projects/projects_section.dart';
-import '../features/skills/skills_section.dart';
-import '../features/achievements/achievements_section.dart';
-import '../features/contact/contact_section.dart';
+import 'core/constants/app_colors.dart';
+import 'core/constants/app_text_styles.dart';
+import 'features/hero/hero_section.dart';
+import 'features/experience/experience_section.dart';
+import 'features/projects/projects_section.dart';
+import 'features/skills/skills_section.dart';
+import 'features/achievements/achievements_section.dart';
+import 'features/contact/contact_section.dart';
 
 class PortfolioPage extends StatefulWidget {
   const PortfolioPage({super.key});
@@ -16,15 +16,14 @@ class PortfolioPage extends StatefulWidget {
 }
 
 class _PortfolioPageState extends State<PortfolioPage> {
-  final ScrollController _scrollCtrl = ScrollController();
+  final _scrollCtrl = ScrollController();
 
-  // Section keys for scroll-to
-  final _heroKey = GlobalKey();
-  final _expKey = GlobalKey();
-  final _projectsKey = GlobalKey();
-  final _skillsKey = GlobalKey();
+  final _heroKey         = GlobalKey();
+  final _expKey          = GlobalKey();
+  final _projectsKey     = GlobalKey();
+  final _skillsKey       = GlobalKey();
   final _achievementsKey = GlobalKey();
-  final _contactKey = GlobalKey();
+  final _contactKey      = GlobalKey();
 
   int _activeNav = 0;
 
@@ -40,6 +39,11 @@ class _PortfolioPageState extends State<PortfolioPage> {
     }
   }
 
+  List<GlobalKey> get _keys => [
+    _heroKey, _expKey, _projectsKey,
+    _skillsKey, _achievementsKey, _contactKey,
+  ];
+
   @override
   void dispose() {
     _scrollCtrl.dispose();
@@ -52,23 +56,12 @@ class _PortfolioPageState extends State<PortfolioPage> {
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          // ── NAV BAR ──
+          // Sticky navbar
           _NavBar(
             activeIndex: _activeNav,
-            onTap: (i) {
-              final keys = [
-                _heroKey,
-                _expKey,
-                _projectsKey,
-                _skillsKey,
-                _achievementsKey,
-                _contactKey,
-              ];
-              _scrollTo(keys[i], i);
-            },
+            onTap: (i) => _scrollTo(_keys[i], i),
           ),
-
-          // ── CONTENT ──
+          // Scrollable content
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollCtrl,
@@ -77,30 +70,20 @@ class _PortfolioPageState extends State<PortfolioPage> {
                   KeyedSubtree(
                     key: _heroKey,
                     child: HeroSection(
-                      onContactTap: () => _scrollTo(_contactKey, 5),
-                      onProjectsTap: () => _scrollTo(_projectsKey, 2),
+                      onContact:  () => _scrollTo(_contactKey, 5),
+                      onProjects: () => _scrollTo(_projectsKey, 2),
                     ),
                   ),
-                  KeyedSubtree(
-                    key: _expKey,
-                    child: const ExperienceSection(),
-                  ),
-                  KeyedSubtree(
-                    key: _projectsKey,
-                    child: const ProjectsSection(),
-                  ),
-                  KeyedSubtree(
-                    key: _skillsKey,
-                    child: const SkillsSection(),
-                  ),
-                  KeyedSubtree(
-                    key: _achievementsKey,
-                    child: const AchievementsSection(),
-                  ),
-                  KeyedSubtree(
-                    key: _contactKey,
-                    child: const ContactSection(),
-                  ),
+                  KeyedSubtree(key: _expKey,
+                      child: const ExperienceSection()),
+                  KeyedSubtree(key: _projectsKey,
+                      child: const ProjectsSection()),
+                  KeyedSubtree(key: _skillsKey,
+                      child: const SkillsSection()),
+                  KeyedSubtree(key: _achievementsKey,
+                      child: const AchievementsSection()),
+                  KeyedSubtree(key: _contactKey,
+                      child: const ContactSection()),
                   const _Footer(),
                 ],
               ),
@@ -112,7 +95,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
   }
 }
 
-// ── NAV BAR ──────────────────────────────────────────────────
+// ── NAVBAR ───────────────────────────────────────────────────
 
 class _NavBar extends StatelessWidget {
   final int activeIndex;
@@ -120,30 +103,25 @@ class _NavBar extends StatelessWidget {
 
   const _NavBar({required this.activeIndex, required this.onTap});
 
-  static const _items = [
-    'Home',
-    'Experience',
-    'Projects',
-    'Skills',
-    'Achievements',
-    'Contact',
+  static const _labels = [
+    'Home', 'Experience', 'Projects', 'Skills', 'Achievements', 'Contact',
   ];
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56,
+      height: 70, // AppSizes.navHeight এর জায়গায় ডিরেক্ট হাইট দেওয়া হয়েছে যদি AppSizes মিসিং থাকে
       decoration: BoxDecoration(
-        color: AppColors.surface.withOpacity(0.9),
-        border: const Border(
-          bottom: BorderSide(color: AppColors.border),
+        color: AppColors.background.withOpacity(0.9),
+        border: Border(
+          bottom: BorderSide(color: AppColors.neonCyan.withOpacity(0.08)),
         ),
       ),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: AppSizes.maxContentWidth),
+          constraints: const BoxConstraints(maxWidth: 1200), // AppSizes.maxWidth এর ব্যাকআপ
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Row(
               children: [
                 // Logo
@@ -154,22 +132,20 @@ class _NavBar extends StatelessWidget {
                   child: const Text(
                     'AA.',
                     style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white,
                     ),
                   ),
                 ),
                 const Spacer(),
-                // Nav items (hide on small screens)
+                // Nav items
                 if (MediaQuery.of(context).size.width > 600)
-                  ..._items.asMap().entries.map(
+                  ..._labels.asMap().entries.map(
                         (e) => _NavItem(
-                          label: e.value,
-                          isActive: activeIndex == e.key,
-                          onTap: () => onTap(e.key),
-                        ),
-                      ),
+                      label: e.value,
+                      isActive: activeIndex == e.key,
+                      onTap: () => onTap(e.key),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -184,11 +160,11 @@ class _NavItem extends StatefulWidget {
   final bool isActive;
   final VoidCallback onTap;
 
-  const _NavItem(
-      {required this.label, required this.isActive, required this.onTap});
+  const _NavItem({
+    required this.label, required this.isActive, required this.onTap,
+  });
 
-  @override
-  State<_NavItem> createState() => _NavItemState();
+  @override State<_NavItem> createState() => _NavItemState();
 }
 
 class _NavItemState extends State<_NavItem> {
@@ -196,10 +172,11 @@ class _NavItemState extends State<_NavItem> {
 
   @override
   Widget build(BuildContext context) {
+    final active = widget.isActive || _hovered;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
+      onExit:  (_) => setState(() => _hovered = false),
       child: GestureDetector(
         onTap: widget.onTap,
         child: Padding(
@@ -209,13 +186,10 @@ class _NavItemState extends State<_NavItem> {
             children: [
               Text(
                 widget.label,
-                style: AppTextStyles.cardSubtitle.copyWith(
-                  color: widget.isActive || _hovered
-                      ? AppColors.neonCyan
-                      : AppColors.textSecondary,
-                  fontWeight: widget.isActive
-                      ? FontWeight.w600
-                      : FontWeight.w400,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: active ? AppColors.neonCyan : Colors.grey, // AppTextStyles.navItem ও AppColors.textMuted এর ব্যাকআপ ফিক্স
+                  fontWeight: widget.isActive ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
               const SizedBox(height: 2),
@@ -244,14 +218,24 @@ class _Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: AppColors.border)),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 48),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Colors.white.withOpacity(0.1)), // AppColors.border এর ব্যাকআপ ফিক্স
+        ),
       ),
-      child: Text(
-        '© 2026 Md. Ashikur Arman — Built with Flutter ❤️',
-        style: AppTextStyles.cardSubtitle.copyWith(fontSize: 12),
-        textAlign: TextAlign.center,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '© 2026 Md. Ashikur Arman',
+            style: AppTextStyles.bodySm.copyWith(fontSize: 12, color: Colors.grey), // AppTextStyles.footerText এর ফিক্স
+          ),
+          Text(
+            'Built with Flutter ❤️',
+            style: AppTextStyles.bodySm.copyWith(fontSize: 12, color: Colors.grey), // AppTextStyles.footerText এর ফিক্স
+          ),
+        ],
       ),
     );
   }
