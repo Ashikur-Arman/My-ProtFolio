@@ -3,16 +3,13 @@ import '../../core/constants/app_colors.dart';
 
 class GlowCard extends StatefulWidget {
   final Widget child;
-  final EdgeInsetsGeometry padding;
-  final Color glowColor;
-  final BorderRadius? borderRadius;
+  final EdgeInsetsGeometry? padding;
+  final Color? glowColor;
+  final VoidCallback? onTap;
 
   const GlowCard({
-    super.key,
-    required this.child,
-    this.padding = const EdgeInsets.all(28),
-    this.glowColor = AppColors.neonCyan,
-    this.borderRadius,
+    super.key, required this.child,
+    this.padding, this.glowColor, this.onTap,
   });
 
   @override
@@ -24,27 +21,29 @@ class _GlowCardState extends State<GlowCard> {
 
   @override
   Widget build(BuildContext context) {
-    final br = widget.borderRadius ?? BorderRadius.circular(16);
+    final glow = widget.glowColor ?? AppColors.neonCyan;
     return MouseRegion(
+      cursor: widget.onTap != null
+          ? SystemMouseCursors.click : SystemMouseCursors.basic,
       onEnter: (_) => setState(() => _hovered = true),
       onExit:  (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOut,
-        padding: widget.padding,
-        decoration: BoxDecoration(
-          color: AppColors.surfaceCard,
-          borderRadius: br,
-          border: Border.all(
-            color: _hovered
-                ? widget.glowColor.withOpacity(0.45)
-                : AppColors.border,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          padding: widget.padding ?? const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _hovered ? glow.withOpacity(0.4) : AppColors.border,
+            ),
+            boxShadow: _hovered
+                ? [BoxShadow(color: glow.withOpacity(0.08), blurRadius: 20)]
+                : [],
           ),
-          boxShadow: _hovered
-              ? [BoxShadow(color: widget.glowColor.withOpacity(0.12), blurRadius: 28, spreadRadius: 2)]
-              : [],
+          child: widget.child,
         ),
-        child: widget.child,
       ),
     );
   }
