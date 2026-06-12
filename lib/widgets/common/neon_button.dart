@@ -8,13 +8,11 @@ class NeonButton extends StatefulWidget {
   final IconData? icon;
   const NeonButton({super.key, required this.label, required this.onTap,
       this.outlined = false, this.icon});
-
   @override State<NeonButton> createState() => _NeonButtonState();
 }
 
 class _NeonButtonState extends State<NeonButton> {
   bool _hovered = false;
-
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -26,13 +24,12 @@ class _NeonButtonState extends State<NeonButton> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           transform: Matrix4.translationValues(0, _hovered ? -2 : 0, 0),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
           decoration: widget.outlined
               ? BoxDecoration(
                   borderRadius: BorderRadius.circular(100),
                   border: Border.all(
-                    color: _hovered
-                        ? AppColors.neonCyan
+                    color: _hovered ? AppColors.neonCyan
                         : AppColors.neonCyan.withOpacity(0.35),
                   ),
                   color: _hovered
@@ -45,25 +42,22 @@ class _NeonButtonState extends State<NeonButton> {
                     colors: [AppColors.neonCyan, AppColors.neonPurple],
                   ),
                   boxShadow: _hovered
-                      ? [BoxShadow(
-                          color: AppColors.neonCyan.withOpacity(0.3),
-                          blurRadius: 16)]
+                      ? [BoxShadow(color: AppColors.neonCyan.withOpacity(0.3),
+                          blurRadius: 20)]
                       : [],
                 ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (widget.icon != null) ...[
-                Icon(widget.icon, size: 15,
-                    color: widget.outlined
-                        ? AppColors.neonCyan : AppColors.background),
-                const SizedBox(width: 8),
+                Icon(widget.icon, size: 17,
+                    color: widget.outlined ? AppColors.neonCyan : AppColors.background),
+                const SizedBox(width: 9),
               ],
               Text(widget.label,
                 style: TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.w600,
-                  color: widget.outlined
-                      ? AppColors.neonCyan : AppColors.background,
+                  fontSize: 15, fontWeight: FontWeight.w600,
+                  color: widget.outlined ? AppColors.neonCyan : AppColors.background,
                 )),
             ],
           ),

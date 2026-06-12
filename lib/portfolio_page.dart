@@ -99,7 +99,9 @@ class _NavBarWidget extends StatelessWidget implements PreferredSizeWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: AppSizes.maxWidth),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSizes.hPad),
+            padding: EdgeInsets.symmetric(
+                horizontal: AppSizes.responsivePad(
+                    MediaQuery.of(context).size.width)),
             child: Row(
               children: [
                 // Logo
@@ -181,8 +183,9 @@ class _Footer extends StatelessWidget {
   const _Footer();
   @override
   Widget build(BuildContext context) {
+    final hPad = AppSizes.responsivePad(MediaQuery.of(context).size.width);
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: AppSizes.hPad),
+      padding: EdgeInsets.symmetric(vertical: 24, horizontal: hPad),
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: AppColors.border.withOpacity(0.5))),
       ),

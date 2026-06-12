@@ -21,11 +21,11 @@ class NeonChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = _c();
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: c.withOpacity(0.06),
+        color: c.withOpacity(0.07),
         borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: c.withOpacity(0.25)),
+        border: Border.all(color: c.withOpacity(0.28)),
       ),
       child: Text(label, style: AppTextStyles.chip.copyWith(color: c)),
     );

@@ -15,26 +15,29 @@ class SectionWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final hPad = AppSizes.responsivePad(w);
+
     return Container(
       width: double.infinity,
       color: bg,
-      padding: const EdgeInsets.symmetric(vertical: AppSizes.sectionV),
+      padding: EdgeInsets.symmetric(vertical: AppSizes.sectionV),
       child: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: AppSizes.maxWidth),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSizes.hPad),
+            padding: EdgeInsets.symmetric(horizontal: hPad),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(label.toUpperCase(), style: AppTextStyles.sectionLabel),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     Text(title, style: AppTextStyles.sectionTitle),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 20),
                     Expanded(
                       child: Container(
                         height: 1,
@@ -48,7 +51,7 @@ class SectionWrapper extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 48),
                 child,
               ],
             ),

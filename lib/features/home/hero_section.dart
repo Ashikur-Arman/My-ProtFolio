@@ -23,7 +23,7 @@ class _HeroSectionState extends State<HeroSection>
     super.initState();
     _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
     _fade  = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
-    _slide = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
+    _slide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
     _ctrl.forward();
   }
@@ -32,15 +32,18 @@ class _HeroSectionState extends State<HeroSection>
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    final showCard = w > 820;
+    final screenW  = MediaQuery.of(context).size.width;
+    final hPad     = AppSizes.responsivePad(screenW);
+    final showCard = screenW > 860;
 
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 620),
+      constraints: BoxConstraints(
+        minHeight: MediaQuery.of(context).size.height * 0.88,
+      ),
       decoration: const BoxDecoration(
         gradient: RadialGradient(
-          center: Alignment(-0.7, -0.5),
+          center: Alignment(-0.6, -0.5),
           radius: 1.4,
           colors: [Color(0xFF0D1F3C), AppColors.background],
         ),
@@ -53,8 +56,7 @@ class _HeroSectionState extends State<HeroSection>
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: AppSizes.maxWidth),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppSizes.hPad, vertical: 72),
+                padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 80),
                 child: FadeTransition(
                   opacity: _fade,
                   child: SlideTransition(
@@ -62,14 +64,15 @@ class _HeroSectionState extends State<HeroSection>
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // ── Left content ──
+                        // ── Left ──
                         Expanded(
+                          flex: showCard ? 6 : 10,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               _PulseBadge(),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 28),
                               ShaderMask(
                                 shaderCallback: (b) => const LinearGradient(
                                   colors: [Colors.white, Color(0xFF94A3B8)],
@@ -77,17 +80,14 @@ class _HeroSectionState extends State<HeroSection>
                                 child: Text('Md. Ashikur\nArman',
                                     style: AppTextStyles.heroName),
                               ),
-                              const SizedBox(height: 18),
+                              const SizedBox(height: 20),
                               const TypewriterText(),
                               const SizedBox(height: 20),
-                              ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 500),
-                                child: Text(PortfolioData.summary,
-                                    style: AppTextStyles.body),
-                              ),
-                              const SizedBox(height: 36),
+                              Text(PortfolioData.summary,
+                                  style: AppTextStyles.body),
+                              const SizedBox(height: 40),
                               Wrap(
-                                spacing: 16, runSpacing: 12,
+                                spacing: 16, runSpacing: 14,
                                 children: [
                                   NeonButton(
                                     label: 'View Projects',
@@ -102,9 +102,9 @@ class _HeroSectionState extends State<HeroSection>
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 48),
+                              const SizedBox(height: 56),
                               Wrap(
-                                spacing: 32, runSpacing: 16,
+                                spacing: 48, runSpacing: 20,
                                 children: PortfolioData.stats
                                     .map((s) => _StatItem(s: s))
                                     .toList(),
@@ -112,10 +112,13 @@ class _HeroSectionState extends State<HeroSection>
                             ],
                           ),
                         ),
-                        // ── Right floating card ──
+                        // ── Right card ──
                         if (showCard) ...[
-                          const SizedBox(width: 40),
-                          _TechCard(),
+                          const SizedBox(width: 48),
+                          Expanded(
+                            flex: 4,
+                            child: _TechCard(),
+                          ),
                         ],
                       ],
                     ),
@@ -138,7 +141,7 @@ class _GridPainter extends CustomPainter {
     final p = Paint()
       ..color = AppColors.neonCyan.withOpacity(0.03)
       ..strokeWidth = 1;
-    const step = 60.0;
+    const step = 64.0;
     for (double x = 0; x < size.width; x += step) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), p);
     }
@@ -164,7 +167,7 @@ class _PulseBadgeState extends State<_PulseBadge>
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.neonCyan.withOpacity(0.06),
         borderRadius: BorderRadius.circular(100),
@@ -176,16 +179,16 @@ class _PulseBadgeState extends State<_PulseBadge>
           FadeTransition(
             opacity: _c,
             child: Container(
-              width: 6, height: 6,
+              width: 7, height: 7,
               decoration: BoxDecoration(
                 color: AppColors.neonCyan, shape: BoxShape.circle,
                 boxShadow: [BoxShadow(color: AppColors.neonCyan, blurRadius: 6)],
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           const Text('Available for opportunities',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500,
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500,
                   color: AppColors.neonCyan)),
         ],
       ),
@@ -208,7 +211,7 @@ class _StatItem extends StatelessWidget {
           ).createShader(b),
           child: Text(s.value, style: AppTextStyles.statValue),
         ),
-        const SizedBox(height: 3),
+        const SizedBox(height: 4),
         Text(s.label, style: AppTextStyles.statLabel),
       ],
     );
@@ -219,19 +222,21 @@ class _TechCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 260,
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: AppColors.cardBg.withOpacity(0.9),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.neonCyan.withOpacity(0.12)),
+        boxShadow: [
+          BoxShadow(color: AppColors.neonCyan.withOpacity(0.04), blurRadius: 32),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text('TECH STACK', style: AppTextStyles.label),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           ...PortfolioData.techStack.map((t) => _TechRow(t: t)),
         ],
       ),
@@ -245,28 +250,28 @@ class _TechRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
           Container(
-            width: 32, height: 32,
+            width: 38, height: 38,
             decoration: BoxDecoration(
               color: AppColors.neonCyan.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Center(child: Text(t.icon, style: const TextStyle(fontSize: 14))),
+            child: Center(child: Text(t.icon, style: const TextStyle(fontSize: 17))),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 14),
           Expanded(child: Text(t.name,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500,
                   color: AppColors.textCbd))),
           SizedBox(
-            width: 64, height: 4,
+            width: 80, height: 5,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(3),
               child: LinearProgressIndicator(
                 value: t.pct,
-                backgroundColor: AppColors.neonCyan.withOpacity(0.06),
+                backgroundColor: AppColors.neonCyan.withOpacity(0.07),
                 valueColor: const AlwaysStoppedAnimation(AppColors.neonCyan),
               ),
             ),
