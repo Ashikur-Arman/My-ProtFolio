@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../data/portfolio_data.dart';
-import '../../widgets/common/neon_button.dart';
 import '../../widgets/common/typewriter_text.dart';
+import '../../widgets/common/marquee_strip.dart';
 
 class HeroSection extends StatefulWidget {
   final VoidCallback onContactTap;
@@ -32,165 +32,174 @@ class _HeroSectionState extends State<HeroSection>
 
   @override
   Widget build(BuildContext context) {
-    final screenW  = MediaQuery.of(context).size.width;
-    final hPad     = AppSizes.responsivePad(screenW);
-    final showCard = screenW > 860;
+    final screenW = MediaQuery.of(context).size.width;
+    final screenH = MediaQuery.of(context).size.height;
+    final pad = AppSizes.pad(screenW);
+    final isSmall = screenW < 700;
+    final nameSize = isSmall ? 52.0 : (screenW < 1000 ? 68.0 : 88.0);
 
-    return Container(
-      width: double.infinity,
-      constraints: BoxConstraints(
-        minHeight: MediaQuery.of(context).size.height * 0.88,
-      ),
-      decoration: const BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment(-0.6, -0.5),
-          radius: 1.4,
-          colors: [Color(0xFF0D1F3C), AppColors.background],
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(child: CustomPaint(painter: _GridPainter())),
-          Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: AppSizes.maxWidth),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 80),
-                child: FadeTransition(
-                  opacity: _fade,
-                  child: SlideTransition(
-                    position: _slide,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // ── Left ──
-                        Expanded(
-                          flex: showCard ? 6 : 10,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _PulseBadge(),
-                              const SizedBox(height: 28),
-                              ShaderMask(
-                                shaderCallback: (b) => const LinearGradient(
-                                  colors: [Colors.white, Color(0xFF94A3B8)],
-                                ).createShader(b),
-                                child: Text('Md. Ashikur\nArman',
-                                    style: AppTextStyles.heroName),
-                              ),
-                              const SizedBox(height: 20),
-                              const TypewriterText(),
-                              const SizedBox(height: 20),
-                              Text(PortfolioData.summary,
-                                  style: AppTextStyles.body),
-                              const SizedBox(height: 40),
-                              Wrap(
-                                spacing: 16, runSpacing: 14,
-                                children: [
-                                  NeonButton(
-                                    label: 'View Projects',
-                                    onTap: widget.onProjectsTap,
-                                    icon: Icons.rocket_launch_rounded,
-                                  ),
-                                  NeonButton(
-                                    label: 'Contact Me',
-                                    onTap: widget.onContactTap,
-                                    outlined: true,
-                                    icon: Icons.mail_outline_rounded,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 56),
-                              Wrap(
-                                spacing: 48, runSpacing: 20,
-                                children: PortfolioData.stats
-                                    .map((s) => _StatItem(s: s))
-                                    .toList(),
-                              ),
-                            ],
-                          ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Hero content
+        Container(
+          width: double.infinity,
+          constraints: BoxConstraints(minHeight: screenH * 0.86),
+          child: Stack(
+            children: [
+              // Giant background "AA" — desktop only
+              if (!isSmall)
+                Positioned(
+                  right: -20,
+                  top: 0, bottom: 0,
+                  child: Center(
+                    child: Text(
+                      'AA',
+                      style: AppText.heroName.copyWith(
+                        fontSize: 320,
+                        color: AppColors.grey9,
+                        letterSpacing: -16,
+                      ),
+                    ),
+                  ),
+                ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: AppSizes.maxWidth),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: pad, vertical: 64),
+                    child: FadeTransition(
+                      opacity: _fade,
+                      child: SlideTransition(
+                        position: _slide,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Label
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(width: 32, height: 1, color: AppColors.grey5),
+                                const SizedBox(width: 10),
+                                Text('FLUTTER APP DEVELOPER',
+                                    style: AppText.heroLabel),
+                              ],
+                            ),
+                            const SizedBox(height: 32),
+
+                            // Name
+                            Text.rich(
+                              TextSpan(children: [
+                                TextSpan(text: 'Md. Ashikur\n',
+                                    style: AppText.heroName.copyWith(fontSize: nameSize)),
+                                TextSpan(text: 'Arman',
+                                    style: AppText.heroNameItalic.copyWith(fontSize: nameSize)),
+                              ]),
+                            ),
+                            const SizedBox(height: 28),
+
+                            // Typewriter
+                            const TypewriterText(),
+                            const SizedBox(height: 28),
+
+                            // Description
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 580),
+                              child: Text(PortfolioData.desc, style: AppText.heroDesc),
+                            ),
+                            const SizedBox(height: 44),
+
+                            // CTAs
+                            Wrap(
+                              spacing: 16, runSpacing: 12,
+                              children: [
+                                _SolidButton(
+                                    label: 'View Projects', onTap: widget.onProjectsTap),
+                                _GhostButton(
+                                    label: 'Contact Me', onTap: widget.onContactTap),
+                              ],
+                            ),
+                            const SizedBox(height: 64),
+
+                            // Stats
+                            Wrap(
+                              spacing: 48, runSpacing: 24,
+                              children: PortfolioData.stats
+                                  .map((s) => _StatItem(s: s))
+                                  .toList(),
+                            ),
+                          ],
                         ),
-                        // ── Right card ──
-                        if (showCard) ...[
-                          const SizedBox(width: 48),
-                          Expanded(
-                            flex: 4,
-                            child: _TechCard(),
-                          ),
-                        ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
+        // Marquee strip
+        const MarqueeStrip(),
+      ],
+    );
+  }
+}
+
+class _SolidButton extends StatefulWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _SolidButton({required this.label, required this.onTap});
+  @override State<_SolidButton> createState() => _SolidButtonState();
+}
+class _SolidButtonState extends State<_SolidButton> {
+  bool _h = false;
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _h = true),
+      onExit:  (_) => setState(() => _h = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          transform: Matrix4.translationValues(0, _h ? -2 : 0, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 16),
+          color: _h ? AppColors.pureWhite : AppColors.white,
+          child: Text(widget.label.toUpperCase(), style: AppText.btnSolid),
+        ),
       ),
     );
   }
 }
 
-// ── Sub widgets ──────────────────────────────────────────────────
-
-class _GridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final p = Paint()
-      ..color = AppColors.neonCyan.withOpacity(0.03)
-      ..strokeWidth = 1;
-    const step = 64.0;
-    for (double x = 0; x < size.width; x += step) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), p);
-    }
-    for (double y = 0; y < size.height; y += step) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), p);
-    }
-  }
-  @override bool shouldRepaint(_) => false;
+class _GhostButton extends StatefulWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _GhostButton({required this.label, required this.onTap});
+  @override State<_GhostButton> createState() => _GhostButtonState();
 }
-
-class _PulseBadge extends StatefulWidget {
-  @override State<_PulseBadge> createState() => _PulseBadgeState();
-}
-class _PulseBadgeState extends State<_PulseBadge>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c;
-  @override void initState() {
-    super.initState();
-    _c = AnimationController(vsync: this, duration: const Duration(seconds: 2))
-      ..repeat(reverse: true);
-  }
-  @override void dispose() { _c.dispose(); super.dispose(); }
+class _GhostButtonState extends State<_GhostButton> {
+  bool _h = false;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.neonCyan.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: AppColors.neonCyan.withOpacity(0.2)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FadeTransition(
-            opacity: _c,
-            child: Container(
-              width: 7, height: 7,
-              decoration: BoxDecoration(
-                color: AppColors.neonCyan, shape: BoxShape.circle,
-                boxShadow: [BoxShadow(color: AppColors.neonCyan, blurRadius: 6)],
-              ),
-            ),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _h = true),
+      onExit:  (_) => setState(() => _h = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          transform: Matrix4.translationValues(0, _h ? -2 : 0, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 15),
+          decoration: BoxDecoration(
+            border: Border.all(color: _h ? AppColors.grey1 : AppColors.grey5),
           ),
-          const SizedBox(width: 10),
-          const Text('Available for opportunities',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500,
-                  color: AppColors.neonCyan)),
-        ],
+          child: Text(widget.label.toUpperCase(), style: AppText.btnGhost),
+        ),
       ),
     );
   }
@@ -205,79 +214,10 @@ class _StatItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        ShaderMask(
-          shaderCallback: (b) => const LinearGradient(
-            colors: [AppColors.neonCyan, AppColors.neonPurple],
-          ).createShader(b),
-          child: Text(s.value, style: AppTextStyles.statValue),
-        ),
-        const SizedBox(height: 4),
-        Text(s.label, style: AppTextStyles.statLabel),
+        Text(s.value, style: AppText.statValue),
+        const SizedBox(height: 6),
+        Text(s.label.toUpperCase(), style: AppText.statLabel),
       ],
-    );
-  }
-}
-
-class _TechCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        color: AppColors.cardBg.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.neonCyan.withOpacity(0.12)),
-        boxShadow: [
-          BoxShadow(color: AppColors.neonCyan.withOpacity(0.04), blurRadius: 32),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('TECH STACK', style: AppTextStyles.label),
-          const SizedBox(height: 18),
-          ...PortfolioData.techStack.map((t) => _TechRow(t: t)),
-        ],
-      ),
-    );
-  }
-}
-
-class _TechRow extends StatelessWidget {
-  final TechModel t;
-  const _TechRow({required this.t});
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        children: [
-          Container(
-            width: 38, height: 38,
-            decoration: BoxDecoration(
-              color: AppColors.neonCyan.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(child: Text(t.icon, style: const TextStyle(fontSize: 17))),
-          ),
-          const SizedBox(width: 14),
-          Expanded(child: Text(t.name,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500,
-                  color: AppColors.textCbd))),
-          SizedBox(
-            width: 80, height: 5,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: LinearProgressIndicator(
-                value: t.pct,
-                backgroundColor: AppColors.neonCyan.withOpacity(0.07),
-                valueColor: const AlwaysStoppedAnimation(AppColors.neonCyan),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

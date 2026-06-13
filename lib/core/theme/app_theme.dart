@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';
 
 abstract final class AppTheme {
@@ -8,10 +9,11 @@ abstract final class AppTheme {
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppColors.background,
     colorScheme: const ColorScheme.dark(
-      primary: AppColors.neonCyan,
-      secondary: AppColors.neonPurple,
+      primary: AppColors.white,
+      secondary: AppColors.grey1,
       surface: AppColors.surface,
     ),
+    textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
     scrollbarTheme: const ScrollbarThemeData(
       thumbVisibility: WidgetStatePropertyAll(false),
     ),

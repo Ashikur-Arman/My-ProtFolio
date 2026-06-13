@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../data/portfolio_data.dart';
-import '../../widgets/common/glow_card.dart';
 import '../../widgets/common/section_wrapper.dart';
 
 class AchievementsSection extends StatelessWidget {
@@ -11,33 +10,36 @@ class AchievementsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final achs = PortfolioData.achievements;
+
     return SectionWrapper(
-      label: 'Recognition', title: 'Achievements',
-      bg: AppColors.surface.withOpacity(0.25),
+      number: '05 / ACHIEVEMENTS',
+      title: 'Recognition',
+      bg: AppColors.surfaceAlt,
       child: LayoutBuilder(builder: (ctx, con) {
-        final wide = con.maxWidth > 560;
-        if (!wide) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: achs.map((a) => Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: _AchCard(a: a),
-            )).toList(),
-          );
-        }
+        final cols = con.maxWidth > 700 ? 2 : 1;
         final rows = <Widget>[];
-        for (int i = 0; i < achs.length; i += 2) {
-          rows.add(Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Row(
-              children: [
-                Expanded(child: _AchCard(a: achs[i])),
-                if (i + 1 < achs.length) ...[
-                  const SizedBox(width: 16),
-                  Expanded(child: _AchCard(a: achs[i + 1])),
-                ] else
-                  const Expanded(child: SizedBox()),
-              ],
+        for (int i = 0; i < achs.length; i += cols) {
+          final rowItems = <Widget>[];
+          for (int j = 0; j < cols; j++) {
+            final idx = i + j;
+            if (idx < achs.length) {
+              if (j > 0) rowItems.add(Container(width: 1, color: AppColors.grey8));
+              rowItems.add(Expanded(
+                  child: _AchItem(a: achs[idx], num: idx + 1)));
+            } else if (cols == 2) {
+              rowItems.add(Container(width: 1, color: AppColors.grey8));
+              rowItems.add(const Expanded(child: SizedBox()));
+            }
+          }
+          rows.add(Container(
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: AppColors.grey8)),
+            ),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: rowItems,
+              ),
             ),
           ));
         }
@@ -47,32 +49,42 @@ class AchievementsSection extends StatelessWidget {
   }
 }
 
-class _AchCard extends StatelessWidget {
+class _AchItem extends StatefulWidget {
   final AchModel a;
-  const _AchCard({required this.a});
-
+  final int num;
+  const _AchItem({required this.a, required this.num});
+  @override State<_AchItem> createState() => _AchItemState();
+}
+class _AchItemState extends State<_AchItem> {
+  bool _h = false;
   @override
   Widget build(BuildContext context) {
-    return GlowCard(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      glowColor: AppColors.neonPurple,
-      child: Row(
-        children: [
-          Text(a.icon, style: const TextStyle(fontSize: 26)),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(a.title, style: AppTextStyles.cardTitle),
-                const SizedBox(height: 3),
-                Text(a.sub,
-                    style: AppTextStyles.bodySm.copyWith(fontSize: 12)),
-              ],
+    return MouseRegion(
+      onEnter: (_) => setState(() => _h = true),
+      onExit:  (_) => setState(() => _h = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        color: _h ? AppColors.surface : AppColors.surfaceAlt,
+        padding: const EdgeInsets.all(32),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(widget.num.toString().padLeft(2, '0'), style: AppText.achNum),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(widget.a.title, style: AppText.achTitle),
+                  const SizedBox(height: 6),
+                  Text(widget.a.sub, style: AppText.achSub),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

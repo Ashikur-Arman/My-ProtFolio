@@ -15,14 +15,12 @@ class PortfolioPage extends StatefulWidget {
 
 class _PortfolioPageState extends State<PortfolioPage> {
   final _scroll = ScrollController();
-
   final _k0 = GlobalKey();
   final _k1 = GlobalKey();
   final _k2 = GlobalKey();
   final _k3 = GlobalKey();
   final _k4 = GlobalKey();
   final _k5 = GlobalKey();
-
   int _nav = 0;
 
   List<GlobalKey> get _keys => [_k0, _k1, _k2, _k3, _k4, _k5];
@@ -44,13 +42,10 @@ class _PortfolioPageState extends State<PortfolioPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      // Use PreferredSizeWidget for appBar so Scaffold handles body height correctly
-      appBar: _NavBarWidget(activeIndex: _nav, onTap: _go),
+      appBar: _NavBar(activeIndex: _nav, onTap: _go),
       body: SingleChildScrollView(
         controller: _scroll,
-        // CRITICAL: child must not be unbounded
         child: Column(
-          // stretch so children fill full width without unbounded cross-axis
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -72,49 +67,36 @@ class _PortfolioPageState extends State<PortfolioPage> {
   }
 }
 
-// ── NAVBAR as PreferredSizeWidget ─────────────────────────────────
+// ── NAVBAR ───────────────────────────────────────────────────────
 
-class _NavBarWidget extends StatelessWidget implements PreferredSizeWidget {
+class _NavBar extends StatelessWidget implements PreferredSizeWidget {
   final int activeIndex;
   final void Function(int) onTap;
-  const _NavBarWidget({required this.activeIndex, required this.onTap});
+  const _NavBar({required this.activeIndex, required this.onTap});
 
   @override Size get preferredSize => const Size.fromHeight(AppSizes.navHeight);
 
-  static const _labels = [
-    'Home','Experience','Projects','Skills','Achievements','Contact',
-  ];
+  static const _labels = ['Home','Experience','Projects','Skills','Achievements','Contact'];
 
   @override
   Widget build(BuildContext context) {
+    final pad = AppSizes.pad(MediaQuery.of(context).size.width);
     return Container(
       height: AppSizes.navHeight,
-      decoration: BoxDecoration(
-        color: AppColors.background.withOpacity(0.92),
-        border: Border(
-          bottom: BorderSide(color: AppColors.neonCyan.withOpacity(0.08)),
-        ),
+      decoration: const BoxDecoration(
+        color: AppColors.background,
+        border: Border(bottom: BorderSide(color: AppColors.grey8)),
       ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: AppSizes.maxWidth),
           child: Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: AppSizes.responsivePad(
-                    MediaQuery.of(context).size.width)),
+            padding: EdgeInsets.symmetric(horizontal: pad),
             child: Row(
               children: [
-                // Logo
-                ShaderMask(
-                  shaderCallback: (b) => const LinearGradient(
-                    colors: [AppColors.neonCyan, AppColors.neonPurple],
-                  ).createShader(b),
-                  child: const Text('AA.',
-                      style: TextStyle(fontSize: 20,
-                          fontWeight: FontWeight.w800, color: Colors.white)),
-                ),
+                Text('AA', style: AppText.navLogo),
                 const Spacer(),
-                if (MediaQuery.of(context).size.width > 600)
+                if (MediaQuery.of(context).size.width > 640)
                   ..._labels.asMap().entries.map((e) => _NavItem(
                     label: e.value,
                     isActive: activeIndex == e.key,
@@ -136,41 +118,21 @@ class _NavItem extends StatefulWidget {
   const _NavItem({required this.label, required this.isActive, required this.onTap});
   @override State<_NavItem> createState() => _NavItemState();
 }
-
 class _NavItemState extends State<_NavItem> {
-  bool _hovered = false;
+  bool _h = false;
   @override
   Widget build(BuildContext context) {
-    final active = widget.isActive || _hovered;
+    final active = widget.isActive || _h;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit:  (_) => setState(() => _hovered = false),
+      onEnter: (_) => setState(() => _h = true),
+      onExit:  (_) => setState(() => _h = false),
       child: GestureDetector(
         onTap: widget.onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(widget.label,
-                style: AppTextStyles.navItem.copyWith(
-                  color: active ? AppColors.neonCyan : AppColors.textMuted,
-                  fontWeight: widget.isActive
-                      ? FontWeight.w600 : FontWeight.w400,
-                )),
-              const SizedBox(height: 2),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                height: 2, width: widget.isActive ? 20 : 0,
-                decoration: BoxDecoration(
-                  color: AppColors.neonCyan,
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
-            ],
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          child: Text(widget.label.toUpperCase(),
+            style: active ? AppText.navLinkActive : AppText.navLink),
         ),
       ),
     );
@@ -183,17 +145,17 @@ class _Footer extends StatelessWidget {
   const _Footer();
   @override
   Widget build(BuildContext context) {
-    final hPad = AppSizes.responsivePad(MediaQuery.of(context).size.width);
+    final pad = AppSizes.pad(MediaQuery.of(context).size.width);
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 24, horizontal: hPad),
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: AppColors.border.withOpacity(0.5))),
+      padding: EdgeInsets.symmetric(vertical: 24, horizontal: pad),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: AppColors.grey8)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('© 2026 Md. Ashikur Arman', style: AppTextStyles.footerText),
-          Text('Built with Flutter ❤️', style: AppTextStyles.footerText),
+          Text('© 2026 MD. ASHIKUR ARMAN', style: AppText.footerText),
+          Text('BUILT WITH FLUTTER', style: AppText.footerText),
         ],
       ),
     );

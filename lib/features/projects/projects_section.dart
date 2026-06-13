@@ -3,7 +3,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../data/portfolio_data.dart';
-import '../../widgets/common/neon_chip.dart';
 import '../../widgets/common/section_wrapper.dart';
 
 class ProjectsSection extends StatelessWidget {
@@ -11,65 +10,103 @@ class ProjectsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final featured = PortfolioData.projects.where((p) => p.featured).toList();
-    final rest     = PortfolioData.projects.where((p) => !p.featured).toList();
+    final projects = PortfolioData.projects;
+    final count = projects.length.toString().padLeft(2, '0');
 
     return SectionWrapper(
-      label: 'Work', title: 'Projects',
-      bg: AppColors.surface.withOpacity(0.3),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Featured — full width
-          ...featured.map((p) => Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: _ProjCard(project: p),
-              )),
-          // Rest — 2-col on wide, 1-col on narrow
-          LayoutBuilder(builder: (ctx, con) {
-            final cols = con.maxWidth > 560 ? 2 : 1;
-            if (cols == 1) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: rest
-                    .map((p) => Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: _ProjCard(project: p),
-                        ))
-                    .toList(),
-              );
-            }
-            // 2-col manual grid (no GridView inside Column)
-            final rows = <Widget>[];
-            for (int i = 0; i < rest.length; i += 2) {
-              rows.add(Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: _ProjCard(project: rest[i])),
-                    if (i + 1 < rest.length) ...[
-                      const SizedBox(width: 20),
-                      Expanded(child: _ProjCard(project: rest[i + 1])),
-                    ] else
-                      const Expanded(child: SizedBox()),
-                  ],
-                ),
-              ));
-            }
-            return Column(
-                mainAxisSize: MainAxisSize.min, children: rows);
-          }),
-        ],
+      number: '03 / PROJECTS',
+      title: 'Selected Work',
+      count: count,
+      bg: AppColors.surfaceAlt,
+      child: LayoutBuilder(builder: (ctx, con) {
+        final cols = con.maxWidth > 700 ? 3 : (con.maxWidth > 420 ? 2 : 1);
+        return _ProjGrid(projects: projects, cols: cols);
+      }),
+    );
+  }
+}
+
+class _ProjGrid extends StatelessWidget {
+  final List<ProjectModel> projects;
+  final int cols;
+  const _ProjGrid({required this.projects, required this.cols});
+
+  @override
+  Widget build(BuildContext context) {
+    // Build rows manually respecting "featured" spanning logic
+    final rows = <Widget>[];
+    int i = 0;
+    int num = 1;
+
+    while (i < projects.length) {
+      final p = projects[i];
+      if (p.featured && cols >= 2) {
+        // Featured takes 2 slots; try to pair with next normal project if cols==3
+        if (cols == 3 && i + 1 < projects.length && !projects[i + 1].featured) {
+          rows.add(_Row(children: [
+            Expanded(flex: 2, child: _ProjCard(p: p, num: num)),
+            Expanded(flex: 1, child: _ProjCard(p: projects[i + 1], num: num + 1)),
+          ]));
+          i += 2; num += 2;
+        } else {
+          rows.add(_ProjCard(p: p, num: num, fullWidth: true));
+          i += 1; num += 1;
+        }
+      } else {
+        // Pack `cols` normal cards per row
+        final group = <Widget>[];
+        final groupCount = (projects.length - i) >= cols ? cols : (projects.length - i);
+        for (int j = 0; j < groupCount; j++) {
+          if (projects[i + j].featured) break;
+          group.add(Expanded(child: _ProjCard(p: projects[i + j], num: num + j)));
+        }
+        if (group.isEmpty) {
+          // single featured leftover
+          rows.add(_ProjCard(p: projects[i], num: num, fullWidth: true));
+          i += 1; num += 1;
+        } else {
+          rows.add(_Row(children: group));
+          i += group.length; num += group.length;
+        }
+      }
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: rows,
+    );
+  }
+}
+
+class _Row extends StatelessWidget {
+  final List<Widget> children;
+  const _Row({required this.children});
+  @override
+  Widget build(BuildContext context) {
+    final spaced = <Widget>[];
+    for (int i = 0; i < children.length; i++) {
+      if (i > 0) spaced.add(Container(width: 1, color: AppColors.grey8));
+      spaced.add(children[i]);
+    }
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.grey8)),
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: spaced,
+        ),
       ),
     );
   }
 }
 
 class _ProjCard extends StatefulWidget {
-  final ProjectModel project;
-  const _ProjCard({required this.project});
+  final ProjectModel p;
+  final int num;
+  final bool fullWidth;
+  const _ProjCard({required this.p, required this.num, this.fullWidth = false});
   @override State<_ProjCard> createState() => _ProjCardState();
 }
 
@@ -83,85 +120,77 @@ class _ProjCardState extends State<_ProjCard> {
 
   @override
   Widget build(BuildContext context) {
-    final p = widget.project;
-    return MouseRegion(
+    final p = widget.p;
+    final card = MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
       onExit:  (_) => setState(() => _hovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        transform: Matrix4.translationValues(0, _hovered ? -4 : 0, 0),
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: _hovered
-                ? AppColors.neonPurple.withOpacity(0.45)
-                : AppColors.border,
-          ),
-        ),
+        duration: const Duration(milliseconds: 180),
+        color: _hovered ? AppColors.surface : AppColors.background,
+        padding: const EdgeInsets.all(36),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Top glow line
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              height: 2, margin: const EdgeInsets.only(bottom: 14),
-              decoration: BoxDecoration(
-                gradient: _hovered
-                    ? const LinearGradient(
-                        colors: [AppColors.neonCyan, AppColors.neonPurple])
-                    : null,
-                color: _hovered ? null : Colors.transparent,
-                borderRadius: BorderRadius.circular(1),
+            Text(widget.num.toString().padLeft(3, '0'), style: AppText.projNum),
+            const SizedBox(height: 28),
+            Text(p.title, style: AppText.projTitle),
+            const SizedBox(height: 14),
+            Text(p.desc, style: AppText.projDesc),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.only(left: 14),
+              decoration: const BoxDecoration(
+                border: Border(left: BorderSide(color: AppColors.grey6)),
               ),
+              child: Text(p.impact, style: AppText.projImpact),
             ),
-            Row(
+            const SizedBox(height: 24),
+            Wrap(
+              spacing: 8, runSpacing: 8,
               children: [
-                Text('${p.emoji} ',
-                    style: const TextStyle(fontSize: 18)),
-                Expanded(
-                    child: Text(p.title, style: AppTextStyles.cardTitle)),
+                ...p.tags.map((t) => _ProjTag(label: t)),
                 if (p.isPrivate)
-                  const Icon(Icons.lock_outline_rounded,
-                      size: 15, color: AppColors.textMuted)
+                  const _ProjTag(label: 'PRIVATE')
                 else if (p.githubUrl != null)
                   GestureDetector(
                     onTap: () => _launch(p.githubUrl!),
-                    child: const Icon(Icons.open_in_new_rounded,
-                        size: 15, color: AppColors.neonCyan),
+                    child: const _ProjTag(label: 'GITHUB ↗', interactive: true),
                   ),
               ],
-            ),
-            const SizedBox(height: 10),
-            Text(p.desc, style: AppTextStyles.bodySm),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.neonPurple.withOpacity(0.07),
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(8),
-                  bottomRight: Radius.circular(8),
-                ),
-                border: const Border(
-                    left: BorderSide(color: AppColors.neonPurple, width: 2)),
-              ),
-              child: Text('⚡ ${p.impact}',
-                  style: AppTextStyles.bodySm
-                      .copyWith(fontSize: 12, color: AppColors.textLight)),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 6, runSpacing: 6,
-              children: List.generate(p.tags.length,
-                  (i) => NeonChip(label: p.tags[i], colorKey: p.tagColors[i])),
             ),
           ],
         ),
       ),
+    );
+
+    if (widget.fullWidth) {
+      return Container(
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: AppColors.grey8)),
+        ),
+        child: card,
+      );
+    }
+    return card;
+  }
+}
+
+class _ProjTag extends StatelessWidget {
+  final String label;
+  final bool interactive;
+  const _ProjTag({required this.label, this.interactive = false});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        border: Border.all(color: interactive ? AppColors.grey4 : AppColors.grey7),
+      ),
+      child: Text(label, style: AppText.projTag.copyWith(
+        color: interactive ? AppColors.grey1 : AppColors.grey4,
+      )),
     );
   }
 }
