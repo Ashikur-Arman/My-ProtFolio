@@ -15,12 +15,14 @@ class PortfolioPage extends StatefulWidget {
 
 class _PortfolioPageState extends State<PortfolioPage> {
   final _scroll = ScrollController();
+
   final _k0 = GlobalKey();
   final _k1 = GlobalKey();
   final _k2 = GlobalKey();
   final _k3 = GlobalKey();
   final _k4 = GlobalKey();
   final _k5 = GlobalKey();
+
   int _nav = 0;
 
   List<GlobalKey> get _keys => [_k0, _k1, _k2, _k3, _k4, _k5];
@@ -67,7 +69,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
   }
 }
 
-// ── NAVBAR ───────────────────────────────────────────────────────
+// ── NAVBAR ─────────────────────────────────────────────────────
 
 class _NavBar extends StatelessWidget implements PreferredSizeWidget {
   final int activeIndex;
@@ -80,23 +82,25 @@ class _NavBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pad = AppSizes.pad(MediaQuery.of(context).size.width);
+    final w = MediaQuery.of(context).size.width;
+    final hPad = AppSizes.responsivePad(w);
+
     return Container(
       height: AppSizes.navHeight,
+      color: AppColors.background,
       decoration: const BoxDecoration(
-        color: AppColors.background,
-        border: Border(bottom: BorderSide(color: AppColors.grey8)),
+        border: Border(bottom: BorderSide(color: AppColors.divider)),
       ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: AppSizes.maxWidth),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: pad),
+            padding: EdgeInsets.symmetric(horizontal: hPad),
             child: Row(
               children: [
-                Text('AA', style: AppText.navLogo),
+                Text('AA', style: AppTextStyles.logo),
                 const Spacer(),
-                if (MediaQuery.of(context).size.width > 640)
+                if (w > 600)
                   ..._labels.asMap().entries.map((e) => _NavItem(
                     label: e.value,
                     isActive: activeIndex == e.key,
@@ -118,44 +122,47 @@ class _NavItem extends StatefulWidget {
   const _NavItem({required this.label, required this.isActive, required this.onTap});
   @override State<_NavItem> createState() => _NavItemState();
 }
+
 class _NavItemState extends State<_NavItem> {
-  bool _h = false;
+  bool _hovered = false;
   @override
   Widget build(BuildContext context) {
-    final active = widget.isActive || _h;
+    final active = widget.isActive || _hovered;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _h = true),
-      onExit:  (_) => setState(() => _h = false),
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit:  (_) => setState(() => _hovered = false),
       child: GestureDetector(
         onTap: widget.onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18),
           child: Text(widget.label.toUpperCase(),
-            style: active ? AppText.navLinkActive : AppText.navLink),
+            style: AppTextStyles.navItem.copyWith(
+              color: active ? AppColors.white : AppColors.textGhost,
+            )),
         ),
       ),
     );
   }
 }
 
-// ── FOOTER ───────────────────────────────────────────────────────
+// ── FOOTER ─────────────────────────────────────────────────────
 
 class _Footer extends StatelessWidget {
   const _Footer();
   @override
   Widget build(BuildContext context) {
-    final pad = AppSizes.pad(MediaQuery.of(context).size.width);
+    final hPad = AppSizes.responsivePad(MediaQuery.of(context).size.width);
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 24, horizontal: pad),
+      padding: EdgeInsets.symmetric(vertical: 24, horizontal: hPad),
       decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: AppColors.grey8)),
+        border: Border(top: BorderSide(color: AppColors.divider)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('© 2026 MD. ASHIKUR ARMAN', style: AppText.footerText),
-          Text('BUILT WITH FLUTTER', style: AppText.footerText),
+          Text('© 2026 MD. ASHIKUR ARMAN', style: AppTextStyles.footerText),
+          Text('BUILT WITH FLUTTER', style: AppTextStyles.footerText),
         ],
       ),
     );

@@ -17,66 +17,77 @@ class _MarqueeStripState extends State<MarqueeStrip>
     super.initState();
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 22),
+      duration: const Duration(seconds: 20),
     )..repeat();
   }
 
-  @override void dispose() { _ctrl.dispose(); super.dispose(); }
+  @override
+  void dispose() { _ctrl.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) {
+    final tags = PortfolioData.marqueeTags;
     return Container(
-      height: 48,
+      width: double.infinity,
+      height: 52,
       decoration: const BoxDecoration(
         border: Border(
-          top: BorderSide(color: AppColors.grey8),
-          bottom: BorderSide(color: AppColors.grey8),
+          top: BorderSide(color: AppColors.divider),
+          bottom: BorderSide(color: AppColors.divider),
         ),
       ),
       child: ClipRect(
         child: AnimatedBuilder(
           animation: _ctrl,
           builder: (context, _) {
-            return OverflowBox(
-              minWidth: 0, maxWidth: double.infinity,
-              alignment: Alignment.centerLeft,
-              child: FractionalTranslation(
-                translation: Offset(-_ctrl.value, 0),
-                child: Row(
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                // Build a wide row, then shift it left continuously.
+                final row = Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _itemsRow(),
-                    _itemsRow(),
+                    for (int rep = 0; rep < 4; rep++)
+                      for (final t in tags) _MarqueeItem(text: t),
                   ],
-                ),
-              ),
+                );
+                return OverflowBox(
+                  minWidth: 0, maxWidth: double.infinity,
+                  alignment: Alignment.centerLeft,
+                  child: Transform.translate(
+                    offset: Offset(-_ctrl.value * 1600, 0),
+                    child: row,
+                  ),
+                );
+              },
             );
           },
         ),
       ),
     );
   }
+}
 
-  Widget _itemsRow() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: PortfolioData.marqueeItems
-          .map((t) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(t.toUpperCase(), style: AppText.marqueeItem),
-                    const SizedBox(width: 16),
-                    Container(
-                      width: 4, height: 4,
-                      decoration: const BoxDecoration(
-                        color: AppColors.grey5, shape: BoxShape.circle),
-                    ),
-                  ],
-                ),
-              ))
-          .toList(),
+class _MarqueeItem extends StatelessWidget {
+  final String text;
+  const _MarqueeItem({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(text.toUpperCase(), style: AppTextStyles.marquee),
+          const SizedBox(width: 24),
+          Container(
+            width: 4, height: 4,
+            decoration: const BoxDecoration(
+              color: AppColors.textGhost, shape: BoxShape.circle,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

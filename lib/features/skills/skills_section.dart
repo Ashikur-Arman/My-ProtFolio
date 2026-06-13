@@ -10,7 +10,7 @@ class SkillsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SectionWrapper(
-      number: '04 / SKILLS',
+      number: '04 / Skills',
       title: 'Expertise',
       child: LayoutBuilder(builder: (ctx, con) {
         if (con.maxWidth > 700) {
@@ -19,7 +19,7 @@ class SkillsSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: _SkillCol(cats: PortfolioData.skills.sublist(0, half))),
-              const SizedBox(width: 64),
+              const SizedBox(width: 56),
               Expanded(child: _SkillCol(cats: PortfolioData.skills.sublist(half))),
             ],
           );
@@ -45,42 +45,21 @@ class _SkillCol extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(c.cat.toUpperCase(), style: AppText.skillCatLabel),
+            Text(c.cat.toUpperCase(), style: AppTextStyles.sectionNum),
             const SizedBox(height: 16),
             Wrap(
               spacing: 8, runSpacing: 8,
-              children: c.skills.map((s) => _SkillPill(label: s)).toList(),
+              children: c.skills.map((s) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+                decoration: BoxDecoration(border: Border.all(color: AppColors.border)),
+                child: Text(s, style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary)),
+              )).toList(),
             ),
           ],
         ),
       )).toList(),
-    );
-  }
-}
-
-class _SkillPill extends StatefulWidget {
-  final String label;
-  const _SkillPill({required this.label});
-  @override State<_SkillPill> createState() => _SkillPillState();
-}
-class _SkillPillState extends State<_SkillPill> {
-  bool _h = false;
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _h = true),
-      onExit:  (_) => setState(() => _h = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          border: Border.all(color: _h ? AppColors.grey3 : AppColors.grey7),
-        ),
-        child: Text(widget.label,
-          style: AppText.skillPill.copyWith(
-            color: _h ? AppColors.white : AppColors.grey1,
-          )),
-      ),
     );
   }
 }

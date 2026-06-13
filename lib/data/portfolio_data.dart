@@ -10,7 +10,7 @@ class PortfolioData {
   static const String phone    = '+8801843904734';
   static const String github   = 'https://github.com/ashikur-arman';
   static const String linkedin = 'https://www.linkedin.com/in/md-ashikur-arman';
-  static const String desc     =
+  static const String summary  =
       'Flutter Developer with hands-on experience building production-ready '
       'mobile apps using Flutter, Firebase, GetX, and REST APIs. Proven ability '
       'to deliver scalable, user-centric solutions in both team-based and '
@@ -26,12 +26,6 @@ class PortfolioData {
     'Clean Architecture Advocate',
   ];
 
-  // Marquee strip — add/remove freely
-  static const List<String> marqueeItems = [
-    'Flutter','Firebase','GetX','REST API',
-    'Clean Architecture','Android & iOS','Dart',
-  ];
-
   static const List<StatModel> stats = [
     StatModel(value: '3+',   label: 'Production Apps'),
     StatModel(value: '150+', label: 'Problems Solved'),
@@ -39,12 +33,27 @@ class PortfolioData {
     StatModel(value: '3.46', label: 'CGPA'),
   ];
 
+  // Tech stack — shown in hero right panel with progress bars
+  static const List<TechModel> techStack = [
+    TechModel(name: 'Flutter / Dart', pct: 0.95),
+    TechModel(name: 'Firebase',       pct: 0.88),
+    TechModel(name: 'GetX',           pct: 0.90),
+    TechModel(name: 'REST API',       pct: 0.85),
+    TechModel(name: 'Clean Arch.',    pct: 0.82),
+  ];
+
+  // Marquee strip — scrolling tech tags below hero
+  static const List<String> marqueeTags = [
+    'Flutter', 'Firebase', 'GetX', 'REST API',
+    'Clean Architecture', 'Android & iOS', 'Dart',
+  ];
+
   // ── EXPERIENCE — add new ExperienceModel blocks here ─────────
   static final List<ExperienceModel> experiences = [
     ExperienceModel(
       company: 'AU LTD', companyUrl: 'https://aultdbd.com/index.html',
       role: 'Flutter App Developer', type: 'Remote',
-      period: 'Feb 2026 — Present',
+      duration: 'Feb 2026 — Present',
       bullets: [
         'Built geofence-based attendance and clock-in/out system in FitWell-Flow with real-time shift tracking and auto clock-out logic.',
         'Integrated REST APIs with retry logic and offline detection across FitWell-Flow, Eshogol e-commerce and TeliKash fintech apps.',
@@ -54,13 +63,12 @@ class PortfolioData {
     // ExperienceModel(
     //   company: 'New Company', companyUrl: 'https://...',
     //   role: 'Senior Flutter Developer', type: 'On-site',
-    //   period: 'Jan 2027 — Present',
+    //   duration: 'Jan 2027 — Present',
     //   bullets: ['Achievement here.'],
     // ),
   ];
 
   // ── PROJECTS — add new ProjectModel blocks here ───────────────
-  // featured=true projects span full width
   static final List<ProjectModel> projects = [
     ProjectModel(
       title: 'Smart Job Circular App', featured: true,
@@ -73,7 +81,8 @@ class PortfolioData {
     ),
     ProjectModel(
       title: 'E-Learning Platform', featured: false,
-      desc: 'Digital learning system with course enrollment, timed quizzes and real-time evaluation.',
+      desc: 'Digital learning system with course enrollment, timed quizzes with '
+            'real-time evaluation and Firestore-backed retake restrictions.',
       impact: 'Enables instant learning access and reduces dependency on printed resources.',
       tags: ['Flutter','Firebase'],
       githubUrl: 'https://github.com/Ashikur-Arman/E-Learnig-App', isPrivate: false,
@@ -130,12 +139,18 @@ class StatModel {
   const StatModel({required this.value, required this.label});
 }
 
+class TechModel {
+  final String name;
+  final double pct;
+  const TechModel({required this.name, required this.pct});
+}
+
 class ExperienceModel {
-  final String company, companyUrl, role, type, period;
+  final String company, companyUrl, role, type, duration;
   final List<String> bullets;
   const ExperienceModel({
     required this.company, required this.companyUrl, required this.role,
-    required this.type, required this.period, required this.bullets,
+    required this.type, required this.duration, required this.bullets,
   });
 }
 

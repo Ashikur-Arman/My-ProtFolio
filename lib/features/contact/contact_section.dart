@@ -4,7 +4,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../data/portfolio_data.dart';
-import '../../widgets/common/section_wrapper.dart';
 
 class ContactSection extends StatelessWidget {
   const ContactSection({super.key});
@@ -25,45 +24,46 @@ class ContactSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenW = MediaQuery.of(context).size.width;
-    final bigSize = screenW < 700 ? 40.0 : 64.0;
+    final w = MediaQuery.of(context).size.width;
+    final hPad = AppSizes.responsivePad(w);
+    final narrow = w < 700;
+    final bigSize = narrow ? 40.0 : 56.0;
 
-    return SectionWrapper(
-      number: "06 / CONTACT",
-      title: "Let's Talk",
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text.rich(
-            TextSpan(children: [
-              TextSpan(text: "Let's build\nsomething\n",
-                  style: AppText.contactBig.copyWith(fontSize: bigSize)),
-              TextSpan(text: 'great.',
-                  style: AppText.contactBigItalic.copyWith(fontSize: bigSize)),
-            ]),
-          ),
-          const SizedBox(height: 48),
-          Wrap(
-            spacing: 32, runSpacing: 16,
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: AppSizes.sectionV, horizontal: hPad),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              _ContactLink(
-                label: PortfolioData.email,
-                onTap: () => _copy(context),
+              RichText(
+                text: TextSpan(children: [
+                  TextSpan(text: "Let's build\nsomething\n",
+                      style: AppTextStyles.contactBig(size: bigSize)),
+                  TextSpan(text: 'great.',
+                      style: AppTextStyles.contactBigItalic(size: bigSize)),
+                ]),
               ),
-              _ContactLink(
-                label: 'GitHub',
-                onTap: () => _launch(PortfolioData.github),
+              const SizedBox(height: 48),
+              Wrap(
+                spacing: 32, runSpacing: 16,
+                children: [
+                  _ContactLink(label: PortfolioData.email, onTap: () => _copy(context)),
+                  _ContactLink(label: 'GitHub', onTap: () => _launch(PortfolioData.github)),
+                  _ContactLink(label: 'LinkedIn', onTap: () => _launch(PortfolioData.linkedin)),
+                ],
               ),
-              _ContactLink(
-                label: 'LinkedIn',
-                onTap: () => _launch(PortfolioData.linkedin),
-              ),
+              const SizedBox(height: 32),
+              Text(PortfolioData.phone,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
+                      letterSpacing: 2, color: AppColors.textFaint)),
             ],
           ),
-          const SizedBox(height: 32),
-          Text(PortfolioData.phone, style: AppText.contactPhone),
-        ],
+        ),
       ),
     );
   }
@@ -75,28 +75,29 @@ class _ContactLink extends StatefulWidget {
   const _ContactLink({required this.label, required this.onTap});
   @override State<_ContactLink> createState() => _ContactLinkState();
 }
+
 class _ContactLinkState extends State<_ContactLink> {
-  bool _h = false;
+  bool _hovered = false;
+
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _h = true),
-      onExit:  (_) => setState(() => _h = false),
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit:  (_) => setState(() => _hovered = false),
       child: GestureDetector(
         onTap: widget.onTap,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(widget.label.toUpperCase(),
-                style: AppText.contactLink.copyWith(
-                  color: _h ? AppColors.white : AppColors.grey3,
+                style: TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 3,
+                  color: _hovered ? AppColors.white : AppColors.textSecondary,
                 )),
-            const SizedBox(width: 10),
-            Text('↗', style: TextStyle(
-              fontSize: 14,
-              color: _h ? AppColors.white : AppColors.grey3,
-            )),
+            const SizedBox(width: 8),
+            Icon(Icons.north_east_rounded, size: 14,
+                color: _hovered ? AppColors.white : AppColors.textSecondary),
           ],
         ),
       ),

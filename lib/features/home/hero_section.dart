@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../data/portfolio_data.dart';
-import '../../widgets/common/typewriter_text.dart';
+import '../../widgets/common/editorial_button.dart';
 import '../../widgets/common/marquee_strip.dart';
+import '../../widgets/common/typewriter_text.dart';
 
 class HeroSection extends StatefulWidget {
   final VoidCallback onContactTap;
@@ -32,106 +33,78 @@ class _HeroSectionState extends State<HeroSection>
 
   @override
   Widget build(BuildContext context) {
-    final screenW = MediaQuery.of(context).size.width;
-    final screenH = MediaQuery.of(context).size.height;
-    final pad = AppSizes.pad(screenW);
-    final isSmall = screenW < 700;
-    final nameSize = isSmall ? 52.0 : (screenW < 1000 ? 68.0 : 88.0);
+    final screenW  = MediaQuery.of(context).size.width;
+    final hPad     = AppSizes.responsivePad(screenW);
+    final showRight = screenW > 880;
+    final narrow = screenW < 700;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Hero content
         Container(
           width: double.infinity,
-          constraints: BoxConstraints(minHeight: screenH * 0.86),
+          constraints: BoxConstraints(
+            minHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
+          color: AppColors.background,
           child: Stack(
             children: [
-              // Giant background "AA" — desktop only
-              if (!isSmall)
-                Positioned(
-                  right: -20,
-                  top: 0, bottom: 0,
+              // Giant background "AA"
+              Positioned(
+                right: -30,
+                top: 0, bottom: 0,
+                child: IgnorePointer(
                   child: Center(
                     child: Text(
                       'AA',
-                      style: AppText.heroName.copyWith(
-                        fontSize: 320,
-                        color: AppColors.grey9,
+                      style: AppTextStyles.heroName(size: 340).copyWith(
+                        color: AppColors.bgGiant,
                         letterSpacing: -16,
                       ),
                     ),
                   ),
                 ),
+              ),
               Align(
                 alignment: Alignment.topCenter,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: AppSizes.maxWidth),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: pad, vertical: 64),
+                    padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 72),
                     child: FadeTransition(
                       opacity: _fade,
                       child: SlideTransition(
                         position: _slide,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Label
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(width: 32, height: 1, color: AppColors.grey5),
-                                const SizedBox(width: 10),
-                                Text('FLUTTER APP DEVELOPER',
-                                    style: AppText.heroLabel),
-                              ],
-                            ),
-                            const SizedBox(height: 32),
-
-                            // Name
-                            Text.rich(
-                              TextSpan(children: [
-                                TextSpan(text: 'Md. Ashikur\n',
-                                    style: AppText.heroName.copyWith(fontSize: nameSize)),
-                                TextSpan(text: 'Arman',
-                                    style: AppText.heroNameItalic.copyWith(fontSize: nameSize)),
-                              ]),
-                            ),
-                            const SizedBox(height: 28),
-
-                            // Typewriter
-                            const TypewriterText(),
-                            const SizedBox(height: 28),
-
-                            // Description
-                            ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 580),
-                              child: Text(PortfolioData.desc, style: AppText.heroDesc),
-                            ),
-                            const SizedBox(height: 44),
-
-                            // CTAs
-                            Wrap(
-                              spacing: 16, runSpacing: 12,
-                              children: [
-                                _SolidButton(
-                                    label: 'View Projects', onTap: widget.onProjectsTap),
-                                _GhostButton(
-                                    label: 'Contact Me', onTap: widget.onContactTap),
-                              ],
-                            ),
-                            const SizedBox(height: 64),
-
-                            // Stats
-                            Wrap(
-                              spacing: 48, runSpacing: 24,
-                              children: PortfolioData.stats
-                                  .map((s) => _StatItem(s: s))
-                                  .toList(),
-                            ),
-                          ],
-                        ),
+                        child: narrow
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _LeftContent(narrow: true,
+                                      onProjectsTap: widget.onProjectsTap,
+                                      onContactTap: widget.onContactTap),
+                                  const SizedBox(height: 48),
+                                  _TechPanel(),
+                                ],
+                              )
+                            : Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    flex: 7,
+                                    child: _LeftContent(narrow: false,
+                                        onProjectsTap: widget.onProjectsTap,
+                                        onContactTap: widget.onContactTap),
+                                  ),
+                                  if (showRight) ...[
+                                    const SizedBox(width: 56),
+                                    Expanded(
+                                      flex: 4,
+                                      child: _TechPanel(),
+                                    ),
+                                  ],
+                                ],
+                              ),
                       ),
                     ),
                   ),
@@ -140,84 +113,144 @@ class _HeroSectionState extends State<HeroSection>
             ],
           ),
         ),
-        // Marquee strip
         const MarqueeStrip(),
       ],
     );
   }
 }
 
-class _SolidButton extends StatefulWidget {
-  final String label;
-  final VoidCallback onTap;
-  const _SolidButton({required this.label, required this.onTap});
-  @override State<_SolidButton> createState() => _SolidButtonState();
-}
-class _SolidButtonState extends State<_SolidButton> {
-  bool _h = false;
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _h = true),
-      onExit:  (_) => setState(() => _h = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          transform: Matrix4.translationValues(0, _h ? -2 : 0, 0),
-          padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 16),
-          color: _h ? AppColors.pureWhite : AppColors.white,
-          child: Text(widget.label.toUpperCase(), style: AppText.btnSolid),
-        ),
-      ),
-    );
-  }
-}
+class _LeftContent extends StatelessWidget {
+  final bool narrow;
+  final VoidCallback onProjectsTap;
+  final VoidCallback onContactTap;
+  const _LeftContent({required this.narrow, required this.onProjectsTap, required this.onContactTap});
 
-class _GhostButton extends StatefulWidget {
-  final String label;
-  final VoidCallback onTap;
-  const _GhostButton({required this.label, required this.onTap});
-  @override State<_GhostButton> createState() => _GhostButtonState();
-}
-class _GhostButtonState extends State<_GhostButton> {
-  bool _h = false;
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _h = true),
-      onExit:  (_) => setState(() => _h = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          transform: Matrix4.translationValues(0, _h ? -2 : 0, 0),
-          padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 15),
-          decoration: BoxDecoration(
-            border: Border.all(color: _h ? AppColors.grey1 : AppColors.grey5),
-          ),
-          child: Text(widget.label.toUpperCase(), style: AppText.btnGhost),
-        ),
-      ),
-    );
-  }
-}
-
-class _StatItem extends StatelessWidget {
-  final StatModel s;
-  const _StatItem({required this.s});
-  @override
-  Widget build(BuildContext context) {
+    final nameSize = narrow ? 48.0 : 80.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(s.value, style: AppText.statValue),
-        const SizedBox(height: 6),
-        Text(s.label.toUpperCase(), style: AppText.statLabel),
+        Row(
+          children: [
+            Container(width: 32, height: 1, color: const Color(0xFF444444)),
+            const SizedBox(width: 10),
+            Text('FLUTTER APP DEVELOPER', style: AppTextStyles.heroLabel),
+          ],
+        ),
+        const SizedBox(height: 28),
+        RichText(
+          text: TextSpan(children: [
+            TextSpan(text: 'Md. Ashikur\n', style: AppTextStyles.heroName(size: nameSize)),
+            TextSpan(text: 'Arman', style: AppTextStyles.heroNameItalic(size: nameSize)),
+          ]),
+        ),
+        const SizedBox(height: 24),
+        const TypewriterText(),
+        const SizedBox(height: 20),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 540),
+          child: Text(PortfolioData.summary, style: AppTextStyles.body),
+        ),
+        const SizedBox(height: 40),
+        Wrap(
+          spacing: 14, runSpacing: 12,
+          children: [
+            EditorialButton(label: 'VIEW PROJECTS', onTap: onProjectsTap),
+            EditorialButton(label: 'CONTACT ME', onTap: onContactTap, ghost: true),
+          ],
+        ),
+        const SizedBox(height: 56),
+        Wrap(
+          spacing: 48, runSpacing: 20,
+          children: PortfolioData.stats.map((s) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(s.value, style: AppTextStyles.statValue),
+              const SizedBox(height: 4),
+              Text(s.label.toUpperCase(), style: AppTextStyles.statLabel),
+            ],
+          )).toList(),
+        ),
       ],
+    );
+  }
+}
+
+class _TechPanel extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 360),
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceCard,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.only(bottom: 16),
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: AppColors.divider)),
+            ),
+            width: double.infinity,
+            child: Text('TECH STACK', style: AppTextStyles.tagLabel.copyWith(
+                color: AppColors.textTertiary, letterSpacing: 3, fontSize: 11)),
+          ),
+          const SizedBox(height: 4),
+          ...PortfolioData.techStack.map((t) => _TechRow(t: t)),
+        ],
+      ),
+    );
+  }
+}
+
+class _TechRow extends StatelessWidget {
+  final TechModel t;
+  const _TechRow({required this.t});
+
+  @override
+  Widget build(BuildContext context) {
+    final pctLabel = '${(t.pct * 100).round()}%';
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 13),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFF161616))),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(t.name,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600,
+                    color: AppColors.textBright)),
+          ),
+          SizedBox(
+            width: 72, height: 3,
+            child: Stack(
+              children: [
+                Container(color: AppColors.border),
+                FractionallySizedBox(
+                  widthFactor: t.pct,
+                  child: Container(color: AppColors.white),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 32,
+            child: Text(pctLabel,
+                textAlign: TextAlign.right,
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600,
+                    color: AppColors.textFaint)),
+          ),
+        ],
+      ),
     );
   }
 }
